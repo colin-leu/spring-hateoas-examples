@@ -130,9 +130,9 @@ NOTE: This guide assumes you already somewhat familiar with Spring MVC.
 class EmployeeController {
 
 	private final EmployeeRepository repository;
-	private final EmployeeResourceAssembler assembler;
+	private final EmployeeRepresentationAssembler assembler;
 
-	EmployeeController(EmployeeRepository repository, EmployeeResourceAssembler assembler) {
+	EmployeeController(EmployeeRepository repository, EmployeeRepresentationAssembler assembler) {
 
 		this.repository = repository;
 		this.assembler = assembler;
@@ -144,7 +144,7 @@ class EmployeeController {
 ----
 
 This piece of code shows how the Spring MVC controller is wired with a copy of the `EmployeeRepository` as well as a
-`EmployeeResourceAssembler` and marked as a *REST controller* thanks to the `@RestController` annotation.
+`EmployeeRepresentationAssembler` and marked as a *REST controller* thanks to the `@RestController` annotation.
 
 To support `SimpleIdentifiableRepresentationModelAssembler`, the controller needs two things:
 
@@ -168,7 +168,7 @@ public ResponseEntity<CollectionModel<EntityModel<Employee>>> findAll() {
 }
 ----
 
-It uses the `EmployeeResourceAssembler` and it's `toCollectionModel(Iterable<Employee>)` method to turn a collection of
+It uses the `EmployeeRepresentationAssembler` and it's `toCollectionModel(Iterable<Employee>)` method to turn a collection of
 `Employee` objects into a `CollectionModel<EntityModel<Employee>>`.
 
 NOTE: `CollectionModel` is Spring HATEOAS's vendor neutral representation of a collection. It has it's
@@ -181,7 +181,7 @@ To build a single resource, the `/employees/{id}` route is shown below:
 ----
 /**
  * Look up a single {@link Employee} and transform it into a REST resource using
- * {@link EmployeeResourceAssembler#toEntityModel(Object)}. Then return it through
+ * {@link EmployeeRepresentationAssembler#toEntityModel(Object)}. Then return it through
  * Spring Web's {@link ResponseEntity} fluent API.
  *
  * @param id
@@ -193,12 +193,12 @@ public ResponseEntity<EntityModel<Employee>> findOne(@PathVariable long id) {
 }
 ----
 
-Again, the `EmployeeResourceAssembler` is used to convert a single `Employee` into a `EntityModel<Employee>`
+Again, the `EmployeeRepresentationAssembler` is used to convert a single `Employee` into a `EntityModel<Employee>`
 through its `toEntityModel(Employee)` method.
 
 == Customizing the Output
 
-What's not shown in this example is that the `EmployeeResourceAssembler` comes with overrides.
+What's not shown in this example is that the `EmployeeRepresentationAssembler` comes with overrides.
 
 * `setBasePath(/* base */)` would inject a prefix into every link built in the hypermedia.
 * `addLinks(EntityModel<T>)` and `addLinks(CollectionModel<T>)` allows you to override/augment the default links assigned to every resource.
@@ -215,7 +215,7 @@ The following is a bare bones "slice" test case:
 ----
 @RunWith(SpringRunner.class)
 @WebMvcTest(EmployeeController.class)
-@Import({EmployeeResourceAssembler.class})
+@Import({EmployeeRepresentationAssembler.class})
 public class EmployeeControllerTests {
 
 	@Autowired
@@ -231,7 +231,7 @@ public class EmployeeControllerTests {
 * `@RunWith(SpringRunner.class)` is needed to leverage Spring Boot's test annotations with JUnit.
 * `@WebMvcTest(EmployeeController.class)` confines Spring Boot to only autoconfiguring Spring MVC components, and _only_
 this one controller, making it a very precise test case.
-* `@Import({EmployeeResourceAssembler.class})` pulls in one extra Spring component that would be ignored by `@WebMvcTest`.
+* `@Import({EmployeeRepresentationAssembler.class})` pulls in one extra Spring component that would be ignored by `@WebMvcTest`.
 * `@Autowired MockMvc` gives us a handle on a Spring Mock tester.
 * `@MockBean` flags `EmployeeRepositor` as a test collaborator.
 
